@@ -12,12 +12,40 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
+import { Route as ShowcaseIndexImport } from './routes/showcase/index'
+import { Route as PalettesIndexImport } from './routes/palettes/index'
+import { Route as LibrariesIndexImport } from './routes/libraries/index'
+import { Route as ContrastGridIndexImport } from './routes/contrast-grid/index'
 
 // Create/Update Routes
 
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ShowcaseIndexRoute = ShowcaseIndexImport.update({
+  id: '/showcase/',
+  path: '/showcase/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PalettesIndexRoute = PalettesIndexImport.update({
+  id: '/palettes/',
+  path: '/palettes/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const LibrariesIndexRoute = LibrariesIndexImport.update({
+  id: '/libraries/',
+  path: '/libraries/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ContrastGridIndexRoute = ContrastGridIndexImport.update({
+  id: '/contrast-grid/',
+  path: '/contrast-grid/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -32,6 +60,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/contrast-grid/': {
+      id: '/contrast-grid/'
+      path: '/contrast-grid'
+      fullPath: '/contrast-grid'
+      preLoaderRoute: typeof ContrastGridIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/libraries/': {
+      id: '/libraries/'
+      path: '/libraries'
+      fullPath: '/libraries'
+      preLoaderRoute: typeof LibrariesIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/palettes/': {
+      id: '/palettes/'
+      path: '/palettes'
+      fullPath: '/palettes'
+      preLoaderRoute: typeof PalettesIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/showcase/': {
+      id: '/showcase/'
+      path: '/showcase'
+      fullPath: '/showcase'
+      preLoaderRoute: typeof ShowcaseIndexImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -39,32 +95,58 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/contrast-grid': typeof ContrastGridIndexRoute
+  '/libraries': typeof LibrariesIndexRoute
+  '/palettes': typeof PalettesIndexRoute
+  '/showcase': typeof ShowcaseIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/contrast-grid': typeof ContrastGridIndexRoute
+  '/libraries': typeof LibrariesIndexRoute
+  '/palettes': typeof PalettesIndexRoute
+  '/showcase': typeof ShowcaseIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/contrast-grid/': typeof ContrastGridIndexRoute
+  '/libraries/': typeof LibrariesIndexRoute
+  '/palettes/': typeof PalettesIndexRoute
+  '/showcase/': typeof ShowcaseIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/contrast-grid' | '/libraries' | '/palettes' | '/showcase'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/contrast-grid' | '/libraries' | '/palettes' | '/showcase'
+  id:
+    | '__root__'
+    | '/'
+    | '/contrast-grid/'
+    | '/libraries/'
+    | '/palettes/'
+    | '/showcase/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ContrastGridIndexRoute: typeof ContrastGridIndexRoute
+  LibrariesIndexRoute: typeof LibrariesIndexRoute
+  PalettesIndexRoute: typeof PalettesIndexRoute
+  ShowcaseIndexRoute: typeof ShowcaseIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ContrastGridIndexRoute: ContrastGridIndexRoute,
+  LibrariesIndexRoute: LibrariesIndexRoute,
+  PalettesIndexRoute: PalettesIndexRoute,
+  ShowcaseIndexRoute: ShowcaseIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -77,11 +159,27 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/"
+        "/",
+        "/contrast-grid/",
+        "/libraries/",
+        "/palettes/",
+        "/showcase/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/contrast-grid/": {
+      "filePath": "contrast-grid/index.tsx"
+    },
+    "/libraries/": {
+      "filePath": "libraries/index.tsx"
+    },
+    "/palettes/": {
+      "filePath": "palettes/index.tsx"
+    },
+    "/showcase/": {
+      "filePath": "showcase/index.tsx"
     }
   }
 }
