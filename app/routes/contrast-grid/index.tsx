@@ -1,8 +1,10 @@
+import { Button } from '@/components/Button/Button';
 import { cn } from '@/utilities/utilities';
 import { createFileRoute } from '@tanstack/react-router';
-import { alphaBlend, APCAcontrast, calcAPCA, sRGBtoY } from 'apca-w3';
-import { colorParsley } from 'colorparsley';
+import { calcAPCA } from 'apca-w3';
+import { formatHex } from 'culori';
 import { ComponentPropsWithoutRef, ReactNode, use, useEffect } from 'react';
+import { text } from 'stream/consumers';
 
 export const Route = createFileRoute('/contrast-grid/')({
   component: ContrastGridPage,
@@ -57,21 +59,24 @@ const textClasses = {
 };
 
 const getCSSVariableValue = (variableName: string) => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
   const element = document.documentElement; // Or any specific element
+
   const styles = window.getComputedStyle(element);
   const cssVariableValue = styles.getPropertyValue(variableName);
-  return colorParsley(cssVariableValue);
+
+  const hexColor = formatHex(cssVariableValue.trim());
+
+  console.log('hexColor', hexColor);
+
+  return hexColor;
 };
 
 const getLc = (colorText: string, colorBg: string) => {
-  const parsedTextColor = sRGBtoY(colorParsley(colorBg));
-
-  console.log('parsedTextColor', parsedTextColor);
-
-  return APCAcontrast(
-    sRGBtoY(alphaBlend(colorParsley(colorText), colorParsley(colorBg))),
-    sRGBtoY(colorParsley(colorBg))
-  );
+  return calcAPCA(getCSSVariableValue(colorText), getCSSVariableValue(colorBg));
 };
 
 type GridItemProps = ComponentPropsWithoutRef<'div'> & {
@@ -79,6 +84,11 @@ type GridItemProps = ComponentPropsWithoutRef<'div'> & {
 };
 
 const GridItem = ({ children, className, ...props }: GridItemProps) => {
+  const textColor = (className?.match(/text-(\w+)-(\d+)/)?.[0] ?? '').replace('text-', 'color-');
+  const bgColor = (className?.match(/bg-(\w+)-(\d+)/)?.[0] ?? '').replace('bg-', 'color-');
+
+  const Lc = getLc(`--${textColor}`, `--${bgColor}`);
+
   return (
     <div
       className={cn(
@@ -87,30 +97,22 @@ const GridItem = ({ children, className, ...props }: GridItemProps) => {
       )}
       {...props}
     >
-      {children}
+      {children}:{Math.round(Lc * 100) / 100}
     </div>
   );
 };
 
 function ContrastGridPage() {
   useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const fifty = getCSSVariableValue('--color-blue-50');
     const nine50 = getCSSVariableValue('--color-blue-950');
-    console.log(
-      'COLOR\n',
-      getCSSVariableValue('--color-blue-50'),
-      '\n',
-      nine50,
-      '\n',
-      getLc(getCSSVariableValue('--color-blue-50'), nine50),
-      '\n',
-      calcAPCA(getCSSVariableValue('--color-blue-50'), nine50),
-      '\n',
-      calcAPCA('eff6ff', nine50),
-      '\n',
-      calcAPCA('eff6ff', '#162556'),
-      '\n',
-      APCAcontrast(sRGBtoY(getCSSVariableValue('--color-blue-50')), sRGBtoY(nine50), -1)
-    );
+
+    const score = calcAPCA(fifty, nine50);
+
+    console.log('COLOR\n', getCSSVariableValue('--color-blue-50'), fifty, nine50, score);
   }, []);
 
   return (
@@ -185,9 +187,6 @@ function ContrastGridPage() {
         </ul>
       </section>
 
-      <span>Lc 1 - {calcAPCA('oklch(54.6% 0.245 262.881)', 'oklch(28.2% 0.091 267.935)')}</span>
-      <span>Lc 2 - {getLc('oklch(54.6% 0.245 262.881)', 'oklch(28.2% 0.091 267.935)')}</span>
-
       <div className="overflow-auto">
         <div className="p-3 grid grid-cols-14 grid-rows-14 gap-1 md:gap-2 min-w-md max-w-7xl mx-auto text-[10px] sm:text-sm">
           <>
@@ -207,7 +206,7 @@ function ContrastGridPage() {
                   key={`nested-${nestedIndex}`}
                   className={cn(bgClasses[textColorItem], textClasses[item])}
                 >
-                  ITEM
+                  I
                 </GridItem>
               ))}
             </>
